@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "../../dist/out-tsc",
+    "types": []
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "include": [
+    "**/*.d.ts"
+  ],
+  "exclude": [
+    "jest.config.ts"
+  ]
+}

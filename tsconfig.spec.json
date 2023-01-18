@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "target": "ES6",
+    "types": [
+      "jest",
+      "node"
+    ]
+  },
+  "files": [
+    "src/device-client.ts"
+  ],
+  "include": [
+    "**/*.pnp.ts",
+    "**/*.spec.ts",
+    "**/*.d.ts",
+    "jest.config.ts"
+  ]
+}

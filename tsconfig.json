@@ -1,0 +1,60 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "types": [
+      "node",
+      "jest"
+    ],
+    "target": "es2020",
+    "rootDir": ".",
+    "noUnusedLocals": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2021",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@core": [
+        "src/core/index.ts"
+      ],
+      "@identity": [
+        "src/identity/index.ts"
+      ],
+      "@pnp": [
+        "src/pnp/index.ts"
+      ],
+      "@testing": [
+        "src/testing/index.ts"
+      ],
+      "@util/*": [
+        "src/util/*.ts"
+      ]
+    }
+  },
+  "include": [],
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./tsconfig.editor.json"
+    }
+  ]
+}
