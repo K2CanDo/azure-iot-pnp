@@ -1,7 +1,5 @@
-import { DeviceCertificateNotFoundError, DeviceIdentityCreationError, DevicePrivateKeyNotFoundError } from '@core';
-import { EnvVariable, getEnv } from '@util/environment';
+import { DeviceCertificateNotFoundError, DeviceIdentityCreationError, DevicePrivateKeyNotFoundError, EnvVariable, getEnv } from '@core';
 import { createDir, readFile, removeDir } from '@util/fs';
-import { validateCertificate } from '@util/validation';
 import debug from 'debug';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
@@ -10,6 +8,7 @@ import { enrollCertificate, GeneratePrivateKeyOptionsSchema, getOneTimePasscode,
 import { CsrConfigOptions, CsrConfigOptionsSchema } from './csr-config';
 import { DeviceIdentity } from './device-identity';
 import { ScepServerSchema } from './scep-server';
+import { validateCertificate } from './validation';
 
 export const IdentityManagerOptionsSchema = z.object({
   certsDir: z.string(),

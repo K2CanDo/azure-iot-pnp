@@ -1,5 +1,5 @@
-import { isWritablePropertyResponse } from '@pnp';
 import { TWIN_COMPONENT_MARKER_KEY, TWIN_VERSION_KEY } from './markers';
+import { isWritablePropertyResponse } from './writable-property';
 
 /**
  * Concatenate a key-value tuple.

@@ -1,2 +1,3 @@
 export * as Identity from './identity';
-export * from './core/device-client';
+export * as Testing from './testing';
+export * from './core';

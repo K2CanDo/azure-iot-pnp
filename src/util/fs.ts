@@ -4,8 +4,6 @@ import rimraf from 'rimraf';
 
 const { access, readFile: fsReadFile, writeFile: fsWriteFile, readdir, mkdtemp } = fsPromises;
 
-/* Basic file handling*/
-
 /**
  * Check if file exists
  */
@@ -39,4 +37,4 @@ export const readFile = (path: PathLike): Promise<string> => fsReadFile(path, 'u
  */
 export const writeFile = (path: PathLike, data: string): Promise<void> => fsWriteFile(path, data);
 
-export const createTmpDir = (deviceId: string): Promise<string> => mkdtemp(deviceId);
+export const createTmpDir = (prefix: string): Promise<string> => mkdtemp(prefix, { encoding: 'utf-8' });

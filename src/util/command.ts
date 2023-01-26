@@ -1,11 +1,14 @@
+import { EnvVariable, getEnv } from '@core';
 import { execFile } from 'child_process';
 import debug from 'debug';
 import { basename, normalize } from 'path';
 import { promisify } from 'util';
-import { EnvVariable, getEnv } from './environment';
 
-const SSCEP_PATH = normalize(getEnv(EnvVariable.SscepPath, 'sscep'));
-const OPENSSL_PATH = normalize(getEnv(EnvVariable.OpensslPath, 'openssl'));
+const SSCEP_EXECUTABLE_BIN = 'sscep';
+const OPENSSL_EXECUTABLE_BIN = 'openssl';
+
+const SSCEP_PATH = normalize(getEnv(EnvVariable.SscepPath, SSCEP_EXECUTABLE_BIN));
+const OPENSSL_PATH = normalize(getEnv(EnvVariable.OpensslPath, OPENSSL_EXECUTABLE_BIN));
 const log = debug(basename(__filename));
 
 /**

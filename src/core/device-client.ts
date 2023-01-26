@@ -1,8 +1,5 @@
 import { AnonymousCredential, BlobUploadCommonResponse, BlockBlobClient, BlockBlobParallelUploadOptions, newPipeline, Pipeline, } from '@azure/storage-blob';
 import { DeviceIdentity, IdentityManager } from '@identity';
-import { PnPComponent, PnPComponentConstructor, PnPComponentState, WritableProperty, WritablePropertyAckPatch } from '@pnp';
-import { filterTwinMeta } from '@util/helpers';
-import { MESSAGE_TYPE_MARKER_KEY, TWIN_COMPONENT_MARKER, TWIN_VERSION_KEY } from '@util/markers';
 import { Client, Message, Twin } from 'azure-iot-device';
 import { clientFromConnectionString } from 'azure-iot-device-mqtt';
 import { DeviceMethodRequest, DeviceMethodResponse } from 'azure-iot-device/dist/device_method';
@@ -14,7 +11,11 @@ import { basename } from 'path';
 import { Observable, ReplaySubject } from 'rxjs';
 import type { BlobUploadStatus } from './blob-upload-status';
 import { NoModelIdAssignedError } from './errors';
+import { filterTwinMeta } from './helpers';
+import { TWIN_COMPONENT_MARKER, TWIN_VERSION_KEY } from './markers';
+import { PnPComponent, PnPComponentConstructor, PnPComponentState } from './pnp-component';
 import type { Telemetry } from './telemetry';
+import { WritableProperty, WritablePropertyAckPatch } from './writable-property';
 
 const log = debug(basename(__filename));
 
@@ -39,11 +40,29 @@ export interface DeviceTwinModel {
 }
 
 const DEFAULT_CONNECTION_RETRIES = 3;
+const DEFAULT_MESSAGE_TYPE_ID = 'x-message-type';
+
+export interface DeviceClientMeta {
+  messageTypeIdentifier: string;
+}
 
 export interface DeviceClientOptions {
+  /**
+   * Reference to the {@link IdentityManager} used with this {@link DeviceClient} instance
+   */
   identityManager?: IdentityManager;
-  retries?: number;
+  /**
+   * Number of retries when trying to connect to the IoT Hub Provisioning Service and IoT Hub instance
+   */
+  connectionRetries?: number;
+  meta?: DeviceClientMeta;
 }
+
+const DEFAULT_DEVICE_CLIENT_OPTIONS: DeviceClientOptions = {
+  meta: {
+    messageTypeIdentifier: DEFAULT_MESSAGE_TYPE_ID,
+  }
+};
 
 const retry = (promise: Promise<any>, retries: number = DEFAULT_CONNECTION_RETRIES) => {
   const retryHandler = (currentRetry: number, totalRetries: number) => (error: Error) => {
@@ -64,6 +83,7 @@ const retry = (promise: Promise<any>, retries: number = DEFAULT_CONNECTION_RETRI
 export class DeviceClient<DeviceModel extends DeviceTwinModel> {
   identity: DeviceIdentity = null;
   identityManager: IdentityManager;
+  readonly options: Omit<DeviceClientOptions, 'identityManager'>;
   #client: Client;
   #twin: Twin;
   #connected$ = new ReplaySubject<void>(1);
@@ -75,7 +95,12 @@ export class DeviceClient<DeviceModel extends DeviceTwinModel> {
   #propertyChangeHandlers = new Map<string, WritablePropertyChangeHandler>();
 
   private constructor(public deviceId: string, public modelId: string, options: DeviceClientOptions) {
-    this.identityManager = options?.identityManager;
+    const { identityManager, ...opts } = options;
+    this.identityManager = identityManager;
+    this.options = {
+      ...DEFAULT_DEVICE_CLIENT_OPTIONS,
+      ...opts,
+    };
   }
 
   /**
@@ -121,7 +146,7 @@ export class DeviceClient<DeviceModel extends DeviceTwinModel> {
     log('[static create|info] Create device client with deviceId %s and modelId %s', deviceId, modelId);
 
     const instance = new DeviceClient<T>(deviceId, modelId, options);
-    await retry(instance.connect(), options.retries ?? DEFAULT_CONNECTION_RETRIES);
+    await retry(instance.connect(), options.connectionRetries ?? DEFAULT_CONNECTION_RETRIES);
 
     return instance;
   }
@@ -464,7 +489,7 @@ export class DeviceClient<DeviceModel extends DeviceTwinModel> {
     message.contentType = 'application/json';
 
     // set message-type property for routing
-    message.properties.add(MESSAGE_TYPE_MARKER_KEY, type);
+    message.properties.add(this.options.meta.messageTypeIdentifier, type);
 
     if (properties) {
       for (const [key, value] of Object.entries(properties)) {
